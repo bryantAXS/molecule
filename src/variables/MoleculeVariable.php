@@ -21,9 +21,9 @@ use Craft;
  */
 class MoleculeVariable
 {
-    public function get(string $componentName, array $componentVariables = [])
+    public function get(string $componentName, array $componentVariables = [], array $componentOptions = [])
     {
-        return Molecule::$plugin->moleculeService->getComponent($componentName, $componentVariables);
+        return Molecule::$plugin->moleculeService->getComponent($componentName, $componentVariables, $componentOptions);
     }
 
     public function icon(string $iconName, array $iconVariables = [])

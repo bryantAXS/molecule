@@ -32,8 +32,12 @@ class MoleculeService extends Component
      * @param array $componentVariables
      * @return void
      */
-    public function getComponent(string $componentName, array $componentVariables = [])
+    public function getComponent(string $componentName, array $componentVariables = [], array $componentOptions = [])
     {
+
+        //
+        // Getting our template
+        //
         $filePath = "{$componentName}/index.twig";
 
         if (strpos($componentName, "/") > 0) {
@@ -47,6 +51,35 @@ class MoleculeService extends Component
         }
 
         $source = file_get_contents($fullFile);
+
+        //
+        // Handling our data mock
+        //
+        if( isset($componentOptions["mock"]) && $componentOptions["mock"]){
+
+            if(is_bool($componentOptions["mock"])){
+              $mockPath = explode("/", $componentName);
+              array_pop($mockPath);
+              $mockPath = implode("/", $mockPath);
+              $mockPath = "${mockPath}/mock.twig";
+            }
+
+            else{
+              $mockPath = $componentOptions["mock"];
+            }
+
+            $fullMockFile = Craft::parseEnv(Molecule::$plugin->settings->pathComponent) . $mockPath;
+
+            if (!is_readable($fullMockFile)) {
+                throw new Exception("Your requested mock file at {$fullMockFile} could not be found.");
+            }
+
+            $mockSource = file_get_contents($fullMockFile );
+
+            $source = $mockSource . $source;
+
+        }
+
         $rendered = Craft::$app->view->renderString($source, $componentVariables);
 
         return Template::raw($rendered);
